@@ -1237,13 +1237,12 @@ if (
         )) {
 
             popupImage.src = photo.src;
-            profilePopup.classList.add("show");
 
-            voiceStatus.textContent = "Opening profile photo";
+            voiceAssistant.classList.remove("show");
 
-            setTimeout(function() {
-                voiceAssistant.classList.remove("show");
-            }, 700);
+            requestAnimationFrame(function() {
+                profilePopup.classList.add("show");
+            });
 
             return;
         }
