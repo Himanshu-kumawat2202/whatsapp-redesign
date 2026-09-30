@@ -1186,6 +1186,71 @@ function handleVoiceCommand(command) {
 
         return;
     }
+     // CHANGE LAYOUT
+
+    if (
+    command.includes("change layout") ||
+    command.includes("change the layout") ||
+    command.includes("switch layout") ||
+    command.includes("layout")
+) {
+    if (layout2Active === false) {
+        layoutCSS.href = "style5.css";
+        layout2Btn.querySelector("span:last-child").textContent = "Layout 1";
+        layout2Active = true;
+    } else {
+        layoutCSS.href = "style4.css";
+        layout2Btn.querySelector("span:last-child").textContent = "Layout 2";
+        layout2Active = false;
+    }
+
+    voiceStatus.textContent = "Changing layout";
+
+    setTimeout(function() {
+        voiceAssistant.classList.remove("show");
+    }, 700);
+
+    return;
+}
+
+// OPEN CONTACT DP
+if (
+    command.includes("open") &&
+    (
+        command.includes("dp") ||
+        command.includes("profile picture") ||
+        command.includes("profile photo")
+    )
+) {
+    const dpPhotos = document.querySelectorAll(".dp");
+
+    for (let photo of dpPhotos) {
+
+        const chat = photo.closest(".chat");
+
+        if (!chat) continue;
+
+        const chatText = chat.innerText.toLowerCase();
+
+        if (command.split(" ").some(word => 
+            word.length > 2 && chatText.includes(word)
+        )) {
+
+            popupImage.src = photo.src;
+            profilePopup.classList.add("show");
+
+            voiceStatus.textContent = "Opening profile photo";
+
+            setTimeout(function() {
+                voiceAssistant.classList.remove("show");
+            }, 700);
+
+            return;
+        }
+    }
+
+    voiceStatus.textContent = "Contact not found";
+}
 
 }
 
