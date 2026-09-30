@@ -119,10 +119,10 @@
             </span>
 
             <input
-                type="text"
-                placeholder="Ask AI or search chats, media, links..."
-            >
-
+            type="text"
+            id="chatSearch"
+            placeholder="Ask AI or search chats, media, links..."
+>
             <span class="ai-icon">
                <img class = "icon" src = "images\metaai-primary.webp">
             </span>
@@ -1164,12 +1164,46 @@ if (SpeechRecognition) {
     };
 
     // ================= VOICE COMMANDS =================
+// ================= VOICE COMMANDS =================
 
 function handleVoiceCommand(command) {
 
     command = command.toLowerCase().trim();
 
-    // Open Services
+
+    // SEARCH CHAT BY VOICE
+    if (
+        command.includes("search") ||
+        command.includes("find")
+    ) {
+
+        let searchText = command
+            .replace("search for", "")
+            .replace("search", "")
+            .replace("find", "")
+            .replace(/[.,!?]+$/g, "")
+            .trim();
+
+        if (searchText !== "") {
+
+            chatSearch.value = searchText;
+
+            chatSearch.dispatchEvent(
+                new Event("input", { bubbles: true })
+            );
+
+            voiceStatus.textContent = "Searching chats";
+
+            setTimeout(function () {
+                voiceAssistant.classList.remove("show");
+            }, 500);
+
+            return;
+        }
+    }
+
+
+    // OPEN SERVICES
     if (
         command.includes("open service") ||
         command.includes("services") ||
@@ -1186,70 +1220,92 @@ function handleVoiceCommand(command) {
 
         return;
     }
-     // CHANGE LAYOUT
 
+
+    // CHANGE LAYOUT
     if (
-    command.includes("change layout") ||
-    command.includes("change the layout") ||
-    command.includes("switch layout") ||
-    command.includes("layout")
-) {
-    if (layout2Active === false) {
-        layoutCSS.href = "style5.css";
-        layout2Btn.querySelector("span:last-child").textContent = "Layout 1";
-        layout2Active = true;
-    } else {
-        layoutCSS.href = "style4.css";
-        layout2Btn.querySelector("span:last-child").textContent = "Layout 2";
-        layout2Active = false;
-    }
+        command.includes("change layout") ||
+        command.includes("change the layout") ||
+        command.includes("switch layout") ||
+        command.includes("layout")
+    ) {
 
-    voiceStatus.textContent = "Changing layout";
+        if (layout2Active === false) {
 
-    setTimeout(function() {
-        voiceAssistant.classList.remove("show");
-    }, 700);
+            layoutCSS.href = "style5.css";
 
-    return;
-}
+            layout2Btn.querySelector(
+                "span:last-child"
+            ).textContent = "Layout 1";
 
-// OPEN CONTACT DP
-if (
-    command.includes("open") &&
-    (
-        command.includes("dp") ||
-        command.includes("profile picture") ||
-        command.includes("profile photo")
-    )
-) {
-    const dpPhotos = document.querySelectorAll(".dp");
+            layout2Active = true;
 
-    for (let photo of dpPhotos) {
+        } else {
 
-        const chat = photo.closest(".chat");
+            layoutCSS.href = "style4.css";
 
-        if (!chat) continue;
+            layout2Btn.querySelector(
+                "span:last-child"
+            ).textContent = "Layout 2";
 
-        const chatText = chat.innerText.toLowerCase();
-
-        if (command.split(" ").some(word => 
-            word.length > 2 && chatText.includes(word)
-        )) {
-
-            popupImage.src = photo.src;
-
-            voiceAssistant.classList.remove("show");
-
-            requestAnimationFrame(function() {
-                profilePopup.classList.add("show");
-            });
-
-            return;
+            layout2Active = false;
         }
+
+        voiceStatus.textContent = "Changing layout";
+
+        setTimeout(function () {
+            voiceAssistant.classList.remove("show");
+        }, 700);
+
+        return;
     }
 
-    voiceStatus.textContent = "Contact not found";
-}
+
+    // OPEN CONTACT DP
+    if (
+        command.includes("open") &&
+        (
+            command.includes("dp") ||
+            command.includes("profile picture") ||
+            command.includes("profile photo")
+        )
+    ) {
+
+        const dpPhotos = document.querySelectorAll(".dp");
+
+        for (let photo of dpPhotos) {
+
+            const chat = photo.closest(".chat");
+
+            if (!chat) continue;
+
+            const chatText = chat.innerText.toLowerCase();
+
+            const words = command.split(" ");
+
+            if (
+                words.some(function (word) {
+                    return word.length > 2 &&
+                           chatText.includes(word);
+                })
+            ) {
+
+                popupImage.src = photo.src;
+
+                voiceAssistant.classList.remove("show");
+
+                requestAnimationFrame(function () {
+                    profilePopup.classList.add("show");
+                });
+
+                return;
+            }
+        }
+
+        voiceStatus.textContent = "Contact not found";
+
+        return;
+    }
 
 }
 
@@ -1284,6 +1340,27 @@ if (
 
 }
 
+// NORMAL CHAT SEARCH
+const chatSearch = document.getElementById("chatSearch");
+
+chatSearch.addEventListener("input", function () {
+
+    const searchText = this.value.toLowerCase().trim();
+
+    const chats = document.querySelectorAll(".chat");
+
+    chats.forEach(function (chat) {
+
+        const chatText = chat.innerText.toLowerCase();
+
+        if (searchText === "" || chatText.includes(searchText)) {
+            chat.style.display = "";
+        } else {
+            chat.style.display = "none";
+        }
+
+    });
+});
 </script>
 
 
