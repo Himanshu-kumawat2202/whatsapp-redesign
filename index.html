@@ -902,6 +902,38 @@
 
 </div>
 
+<!-- Voice Assistant -->
+<div class="voice-assistant" id="voiceAssistant">
+
+    <div class="voice-box">
+
+        <button class="voice-close" id="voiceClose">
+            ×
+        </button>
+
+        <div class="voice-icon">
+            ✦
+        </div>
+
+        <h2>Meta Voice</h2>
+
+        <p id="voiceStatus">
+            Tap the microphone and speak
+        </p>
+
+        <button class="mic-button" id="micButton">
+            🎙️
+        </button>
+
+        <p class="voice-text" id="voiceText">
+            Try: "Open services"
+        </p>
+
+    </div>
+
+</div>
+
+
 <script>
 
 const servicesBtn =
@@ -1034,7 +1066,162 @@ layout2Btn.addEventListener("click", function () {
 });
 
 
+// ================= VOICE ASSISTANT ==========================
+// if something happen delete this code
+
+
+const aiIcon = document.querySelector(".ai-icon");
+
+const voiceAssistant =
+    document.getElementById("voiceAssistant");
+
+const voiceClose =
+    document.getElementById("voiceClose");
+
+const micButton =
+    document.getElementById("micButton");
+
+const voiceStatus =
+    document.getElementById("voiceStatus");
+
+const voiceText =
+    document.getElementById("voiceText");
+
+
+// Open voice assistant
+
+aiIcon.addEventListener("click", function () {
+
+    voiceAssistant.classList.add("show");
+
+});
+
+
+// Close voice assistant
+
+voiceClose.addEventListener("click", function () {
+
+    voiceAssistant.classList.remove("show");
+
+});
+
+
+// Close when clicking outside
+
+voiceAssistant.addEventListener("click", function (event) {
+
+    if (event.target === voiceAssistant) {
+
+        voiceAssistant.classList.remove("show");
+
+    }
+
+});
+
+
+// ================= VOICE RECOGNITION =================
+
+const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition;
+
+if (SpeechRecognition) {
+
+    recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-IN";
+    recognition.maxAlternatives = 1;
+
+
+    micButton.addEventListener("click", function () {
+
+        voiceStatus.textContent = "Listening...";
+
+        voiceText.textContent = "Speak your command";
+
+        recognition.start();
+
+    });
+
+
+    recognition.onresult = function (event) {
+
+        const spokenText =
+            event.results[0][0].transcript;
+
+        voiceText.textContent =
+            '"' + spokenText + '"';
+
+        voiceStatus.textContent =
+            "Command received";
+
+        console.log("Voice command:", spokenText);
+        handleVoiceCommand(spokenText);
+
+    };
+
+    // ================= VOICE COMMANDS =================
+
+function handleVoiceCommand(command) {
+
+    command = command.toLowerCase().trim();
+
+    // Open Services
+    if (
+        command.includes("open service") ||
+        command.includes("services") ||
+        command.includes("service")
+    ) {
+
+        servicesPanel.classList.add("show");
+
+        voiceStatus.textContent = "Opening Services";
+
+        setTimeout(function () {
+            voiceAssistant.classList.remove("show");
+        }, 700);
+
+        return;
+    }
+
+}
+
+
+    recognition.onend = function () {
+
+        console.log("Voice recognition ended");
+
+    };
+
+
+    recognition.onerror = function(event) {
+    console.log("VOICE ERROR:", event.error);
+
+    if (event.error === "not-allowed") {
+        voiceStatus.textContent = "Microphone permission denied";
+    }
+    else if (event.error === "network") {
+        voiceStatus.textContent = "Speech service unavailable";
+    }
+    else if (event.error === "no-speech") {
+        voiceStatus.textContent = "No speech detected";
+    }
+    else {
+        voiceStatus.textContent = "Voice recognition error";
+    }
+};
+} else {
+
+    voiceStatus.textContent =
+        "Voice recognition is not supported in this browser";
+
+}
+
 </script>
+
 
 
 </body>
